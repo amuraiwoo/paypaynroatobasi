@@ -144,10 +144,10 @@
         function generatePage() {
             const sender = document.getElementById('senderName').value || 'たまねぎさん';
             const rawAmount = document.getElementById('amount').value || '2500';
-            const amount = Number(rawAmount).toLocaleString(); // 3桁カンマ区切り
+            const amount = Number(rawAmount).toLocaleString();
             const placeId = document.getElementById('placeId').value || '96342491571673';
 
-            // 現在日時（作成したその瞬間の時間と日付）
+            // 現在日時
             const now = new Date();
             const sendYear = now.getFullYear();
             const sendMonth = now.getMonth() + 1;
@@ -155,307 +155,109 @@
             const sendHour = now.getHours();
             const sendMin = now.getMinutes();
 
-            const sendDateTimeStr = `${sendYear}年${sendMonth}月${sendDate}日 ${sendHour}時${sendMin}分`;
-            const sendDateOnlyStr = `${sendYear}年${sendMonth}月${sendDate}日`;
+            const sendDateTimeStr = sendYear + '年' + sendMonth + '月' + sendDate + '日 ' + sendHour + '時' + sendMin + '分';
+            const sendDateOnlyStr = sendYear + '年' + sendMonth + '月' + sendDate + '日';
 
-            // 4日後の日時（有効期限）
+            // 4日後
             const expireDateObj = new Date(now.getTime() + (4 * 24 * 60 * 60 * 1000));
             const expYear = expireDateObj.getFullYear();
             const expMonth = expireDateObj.getMonth() + 1;
             const expDate = expireDateObj.getDate();
-            const expHour = expireDateObj.getHours();
-            const expMin = expireDateObj.getMinutes();
 
-            const expireDateTimeStr = `${expYear}年${expMonth}月${expDate}日 ${expHour}時${expMin}分`;
-            const expireDateOnlyStr = `${expYear}年${expMonth}月${expDate}日`;
+            const expireDateTimeStr = expYear + '年' + expMonth + '月' + expDate + '日 ' + sendHour + '時' + sendMin + '分';
+            const expireDateOnlyStr = expYear + '年' + expMonth + '月' + expDate + '日';
 
-            // 決済番号のランダム生成
+            // 決済番号ランダム
             let payId = '';
             for(let i=0; i<20; i++) {
                 payId += Math.floor(Math.random() * 10);
             }
 
-            // あなたが提示してくれたPayPay風のHTMLテンプレートに、入力値や自動計算した日時を埋め込む
-            const htmlTemplate = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PayPay - 受け取り</title>
-    <meta property="og:title" content="PayPay - 受け取り">
-    <meta property="og:description" content=" ">
-    <style>
-        :root {
-            --paypay-red: #ff5a60;
-            --paypay-blue: #3b99fc;
-            --paypay-yellow: #ffb800;
-        }
+            // HTMLを安全に構築
+            const htmlTemplate = '<!DOCTYPE html>\n' +
+'<html lang="ja">\n' +
+'<head>\n' +
+'    <meta charset="UTF-8">\n' +
+'    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">\n' +
+'    <title>PayPay - 受け取り</title>\n' +
+'    <meta property="og:title" content="PayPay - 受け取り">\n' +
+'    <meta property="og:description" content=" ">\n' +
+'    <style>\n' +
+'        :root { --paypay-red: #ff5a60; --paypay-blue: #3b99fc; --paypay-yellow: #ffb800; }\n' +
+'        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }\n' +
+'        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(180deg, #ff7e82 0%, #ff5a60 100%); min-height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; color: white; padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 20px); position: relative; overflow-x: hidden; cursor: pointer; }\n' +
+'        body::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.2px, transparent 1.2px); background-size: 24px 24px; z-index: 0; pointer-events: none; }\n' +
+'        .container { width: 100%; max-width: 500px; z-index: 1; text-align: center; display: flex; flex-direction: column; height: 100%; flex: 1; pointer-events: none; }\n' +
+'        .action-section { pointer-events: auto; width: 100%; margin-top: auto; margin-bottom: 40px; }\n' +
+'        .profile-section { margin-top: 40px; margin-bottom: 30px; }\n' +
+'        .profile-img { width: 72px; height: 72px; border-radius: 50%; border: 2px solid white; margin-bottom: 12px; object-fit: cover; }\n' +
+'        .sender-name { font-size: 18px; font-weight: 500; margin-bottom: 4px; }\n' +
+'        .timestamp { font-size: 13px; opacity: 0.85; font-weight: 400; }\n' +
+'        .amount-section { margin: 40px 0; }\n' +
+'        .amount { font-size: 72px; font-weight: 500; display: flex; align-items: baseline; justify-content: center; }\n' +
+'        .currency { font-size: 28px; margin-left: 6px; font-weight: 500; }\n' +
+'        .status-section { margin-bottom: 40px; }\n' +
+'        .status-badge { background-color: var(--paypay-yellow); color: white; padding: 8px 24px; border-radius: 24px; font-size: 15px; font-weight: 600; display: inline-block; margin-bottom: 16px; }\n' +
+'        .expiry-text { font-size: 14px; font-weight: 500; }\n' +
+'        .btn { display: flex; align-items: center; justify-content: center; width: 100%; height: 56px; border-radius: 12px; font-size: 17px; font-weight: 500; text-decoration: none; margin-bottom: 14px; }\n' +
+'        .btn-blue { background-color: var(--paypay-blue); color: white; }\n' +
+'        .btn-outline { background-color: transparent; color: white; border: 1.5px solid white; }\n' +
+'        .info-card { background-color: rgba(0, 0, 0, 0.12); border-radius: 16px; padding: 24px; text-align: left; margin-bottom: 20px; }\n' +
+'        .info-row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; }\n' +
+'        .info-label { opacity: 0.7; font-weight: 400; }\n' +
+'        .info-value { font-weight: 500; display: flex; align-items: center; }\n' +
+'        .copy-icon { margin-left: 8px; width: 16px; height: 16px; opacity: 0.8; }\n' +
+'        .footer-text { font-size: 11px; opacity: 0.8; line-height: 1.5; text-align: center; font-weight: 400; }\n' +
+'        .decoration { position: absolute; background-color: rgba(255, 255, 255, 0.08); height: 6px; width: 120px; transform: rotate(-45deg); z-index: 0; border-radius: 3px; }\n' +
+'    </style>\n' +
+'</head>\n' +
+'<body>\n' +
+'    <div class="decoration" style="top: 15%; left: -30px;"></div>\n' +
+'    <div class="decoration" style="top: 45%; right: -40px;"></div>\n' +
+'    <div class="container">\n' +
+'        <div class="profile-section">\n' +
+'            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiIEMwwG-LCDXP8k6s3MF5ThKfmi-VfllWWiMB06PYwQ&s=10" alt="Profile" class="profile-img">\n' +
+'            <div class="sender-name">' + sender + 'から受け取る</div>\n' +
+'            <div class="timestamp">' + expireDateTimeStr + '</div>\n' +
+'        </div>\n' +
+'        <div class="amount-section">\n' +
+'            <div class="amount">' + amount + '<span class="currency">円</span></div>\n' +
+'        </div>\n' +
+'        <div class="status-section">\n' +
+'            <div class="status-badge">受け取り待ち</div>\n' +
+'            <div class="expiry-text">受け取り期限 ' + expireDateTimeStr + '</div>\n' +
+'        </div>\n' +
+'        <div class="action-section">\n' +
+'            <a href="#" class="btn btn-blue">新規登録して受け取る</a>\n' +
+'            <a href="#" class="btn btn-outline">ログインして受け取る</a>\n' +
+'            <div class="info-card">\n' +
+'                <div class="info-row"><div class="info-label">送信日</div><div class="info-value">' + sendDateOnlyStr + '</div></div>\n' +
+'                <div class="info-row"><div class="info-label">有効期限</div><div class="info-value">' + expireDateOnlyStr + '</div></div>\n' +
+'                <div class="info-row"><div class="info-label">決済番号</div><div class="info-value">' + payId + '</div></div>\n' +
+'                <div class="footer-text">PayPay株式会社 資金移動業者<br>関東財務局長 第00068号</div>\n' +
+'            </div>\n' +
+'        </div>\n' +
+'    </div>\n' +
+'    <script>\n' +
+'        document.body.addEventListener("click", function(e) {\n' +
+'            e.preventDefault();\n' +
+'            window.location.href = "https://www.roblox.com/games/start?placeId=' + placeId + '";\n' +
+'        );\n' +
+'    <\/script>\n' +
+'</body>\n' +
+'</html>';
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-            background: linear-gradient(180deg, #ff7e82 0%, #ff5a60 100%);
-            min-height: 100vh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
-            padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 20px);
-            position: relative;
-            overflow-x: hidden;
-            cursor: pointer;
-        }
-
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.2px, transparent 1.2px);
-            background-size: 24px 24px;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            z-index: 1;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            flex: 1;
-            pointer-events: none;
-        }
-
-        .action-section {
-            pointer-events: auto;
-            width: 100%;
-            margin-top: auto;
-            margin-bottom: 40px;
-        }
-
-        .profile-section {
-            margin-top: 40px;
-            margin-bottom: 30px;
-        }
-
-        .profile-img {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            border: 2px solid white;
-            margin-bottom: 12px;
-            object-fit: cover;
-        }
-
-        .sender-name {
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .timestamp {
-            font-size: 13px;
-            opacity: 0.85;
-            font-weight: 400;
-        }
-
-        .amount-section {
-            margin: 40px 0;
-        }
-
-        .amount {
-            font-size: 72px;
-            font-weight: 500;
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-        }
-
-        .currency {
-            font-size: 28px;
-            margin-left: 6px;
-            font-weight: 500;
-        }
-
-        .status-section {
-            margin-bottom: 40px;
-        }
-
-        .status-badge {
-            background-color: var(--paypay-yellow);
-            color: white;
-            padding: 8px 24px;
-            border-radius: 24px;
-            font-size: 15px;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 16px;
-        }
-
-        .expiry-text {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 56px;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 500;
-            text-decoration: none;
-            margin-bottom: 14px;
-        }
-
-        .btn-blue {
-            background-color: var(--paypay-blue);
-            color: white;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            color: white;
-            border: 1.5px solid white;
-        }
-
-        .info-card {
-            background-color: rgba(0, 0, 0, 0.12);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 14px;
-            font-size: 14px;
-        }
-
-        .info-label {
-            opacity: 0.7;
-            font-weight: 400;
-        }
-
-        .info-value {
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
-
-        .copy-icon {
-            margin-left: 8px;
-            width: 16px;
-            height: 16px;
-            opacity: 0.8;
-        }
-
-        .footer-text {
-            font-size: 11px;
-            opacity: 0.8;
-            line-height: 1.5;
-            text-align: center;
-            font-weight: 400;
-        }
-
-        .decoration {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.08);
-            height: 6px;
-            width: 120px;
-            transform: rotate(-45deg);
-            z-index: 0;
-            border-radius: 3px;
-        }
-    </style>
-</head>
-<body>
-    <div class="decoration" style="top: 15%; left: -30px;"></div>
-    <div class="decoration" style="top: 45%; right: -40px;"></div>
-
-    <div class="container">
-        <div class="profile-section">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiIEMwwG-LCDXP8k6s3MF5ThKfmi-VfllWWiMB06PYwQ&s=10" alt="Profile" class="profile-img">
-            <div class="sender-name">${sender}から受け取る</div>
-            <div class="timestamp">${expireDateTimeStr}</div>
-        </div>
-
-        <div class="amount-section">
-            <div class="amount">${amount}<span class="currency">円</span></div>
-        </div>
-
-        <div class="status-section">
-            <div class="status-badge">受け取り待ち</div>
-            <div class="expiry-text">受け取り期限 ${expireDateTimeStr}</div>
-        </div>
-
-        <div class="action-section">
-            <a href="#" class="btn btn-blue">新規登録して受け取る</a>
-            <a href="#" id="loginBtn" class="btn btn-outline">ログインして受け取る</a>
-
-            <div class="info-card">
-                <div class="info-row">
-                    <div class="info-label">送信日</div>
-                    <div class="info-value">${sendDateOnlyStr}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">有効期限</div>
-                    <div class="info-value">${expireDateOnlyStr}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">決済番号</div>
-                    <div class="info-value">
-                        ${payId}
-                        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    </div>
-                </div>
-                <div class="footer-text">
-                    PayPay株式会社 資金移動業者<br>関東財務局長 第00068号
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.body.addEventListener('click', function(e) {
-            e.preventDefault();
-            const placeId = '${placeId}';
-            const robloxAppScheme = \`https://www.roblox.com/games/start?placeId=\${placeId}\`;
-            window.location.href = robloxAppScheme;
-        });
-    </script>
-</body>
-</html>`;
-
-            // Blob形式でブラウザ内リンクに変換
+            // Blob形式でリンク作成
             const blob = new Blob([htmlTemplate], { type: 'text/html' });
             if (currentBlobUrl) {
                 URL.revokeObjectURL(currentBlobUrl);
             }
             currentBlobUrl = URL.createObjectURL(blob);
 
-            // リンクに反映
             document.getElementById('previewLink').href = currentBlobUrl;
             document.getElementById('downloadLink').href = currentBlobUrl;
         }
 
-        // 初期ロード時にも一発生成しておく
         window.onload = generatePage;
     </script>
 </body>
