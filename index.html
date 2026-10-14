@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PayPay - 受け取り</title>
+    <style>
+        :root {
+            --paypay-red: #ff5a60;
+            --paypay-blue: #3b99fc;
+            --paypay-yellow: #ffb800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            background: linear-gradient(180deg, #ff7e82 0%, #ff5a60 100%);
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 20px);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.2px, transparent 1.2px);
+            background-size: 24px 24px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            z-index: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            flex: 1;
+        }
+
+        .profile-section {
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        .profile-img {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-bottom: 12px;
+            object-fit: cover;
+        }
+
+        .sender-name {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .timestamp {
+            font-size: 13px;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+
+        .amount-section {
+            margin: 40px 0;
+        }
+
+        .amount {
+            font-size: 72px;
+            font-weight: 500;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+        }
+
+        .currency {
+            font-size: 28px;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+
+        .status-section {
+            margin-bottom: 40px;
+        }
+
+        .status-badge {
+            background-color: var(--paypay-yellow);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .expiry-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .action-section {
+            width: 100%;
+            margin-top: auto;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 56px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 500;
+            text-decoration: none;
+            margin-bottom: 14px;
+        }
+
+        .btn-blue {
+            background-color: var(--paypay-blue);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 1.5px solid white;
+        }
+
+        .info-card {
+            background-color: rgba(0, 0, 0, 0.12);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            opacity: 0.7;
+            font-weight: 400;
+        }
+
+        .info-value {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .copy-icon {
+            margin-left: 8px;
+            width: 16px;
+            height: 16px;
+            opacity: 0.8;
+        }
+
+        .footer-text {
+            font-size: 11px;
+            opacity: 0.8;
+            line-height: 1.5;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .decoration {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.08);
+            height: 6px;
+            width: 120px;
+            transform: rotate(-45deg);
+            z-index: 0;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="decoration" style="top: 15%; left: -30px;"></div>
+    <div class="decoration" style="top: 45%; right: -40px;"></div>
+
+    <div class="container">
+        <div class="profile-section">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiIEMwwG-LCDXP8k6s3MF5ThKfmi-VfllWWiMB06PYwQ&s=10" alt="Profile" class="profile-img">
+            <div class="sender-name">たまねぎさんから受け取る</div>
+            <div class="timestamp">2026年7月29日 21時5分</div>
+        </div>
+
+        <div class="amount-section">
+            <div class="amount">2,500<span class="currency">円</span></div>
+        </div>
+
+        <div class="status-section">
+            <div class="status-badge">受け取り待ち</div>
+            <div class="expiry-text">受け取り期限 2026年8月12日 21時5分</div>
+        </div>
+
+        <div class="action-section">
+            <a href="#" class="btn btn-blue">新規登録して受け取る</a>
+            <!-- ログインして受け取るボタンにIDを付与 -->
+            <a href="#" id="loginBtn" class="btn btn-outline">ログインして受け取る</a>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-label">送信日</div>
+                    <div class="info-value">2026年4月30日</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">有効期限</div>
+                    <div class="info-value">2026年5月4日</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">決済番号</div>
+                    <div class="info-value">
+                        02257339089504681986
+                        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </div>
+                </div>
+                <div class="footer-text">
+                    PayPay株式会社 資金移動業者<br>関東財務局長 第00068号
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Robloxのゲームページ（または直接起動用リンク）を指定
+            const robloxGameUrl = 'https://www.roblox.com/games/96342491571673';
+            
+            // 外部ブラウザやアプリへの遷移を実行
+            window.location.href = robloxGameUrl;
+        });
+    </script>
+</body>
+</html>
