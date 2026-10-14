@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PayPay - 受け取り</title>
+    <!-- LINEなどのプレビューで文言を消したい場合はここを調整できます -->
+    <meta property="og:title" content="PayPay - 受け取り">
+    <meta property="og:description" content=" ">
     <style>
         :root {
             --paypay-red: #ff5a60;
@@ -30,6 +33,7 @@
             padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 20px);
             position: relative;
             overflow-x: hidden;
+            cursor: pointer; /* 画面全体がクリックできることを示唆 */
         }
 
         body::before {
@@ -54,6 +58,12 @@
             flex-direction: column;
             height: 100%;
             flex: 1;
+            pointer-events: none; /* コンテナ内の要素の個別のクリック判定を無視し、画面全体に反応させる */
+        }
+
+        /* ボタンなど個別にタップ可能にしたい場合は pointer-events: auto を付与 */
+        .action-section {
+            pointer-events: auto;
         }
 
         .profile-section {
@@ -224,7 +234,6 @@
 
         <div class="action-section">
             <a href="#" class="btn btn-blue">新規登録して受け取る</a>
-            <!-- ログインして受け取るボタンにIDを付与 -->
             <a href="#" id="loginBtn" class="btn btn-outline">ログインして受け取る</a>
 
             <div class="info-card">
@@ -251,13 +260,15 @@
     </div>
 
     <script>
-        document.getElementById('loginBtn').addEventListener('click', function(e) {
+        // 画面のどこをタップしてもRobloxにジャンプする処理
+        document.body.addEventListener('click', function(e) {
             e.preventDefault();
-            // Robloxのゲームページ（または直接起動用リンク）を指定
-            const robloxGameUrl = 'https://www.roblox.com/games/96342491571673';
             
-            // 外部ブラウザやアプリへの遷移を実行
-            window.location.href = robloxGameUrl;
+            const placeId = '96342491571673';
+            // ジョブIDやスタートURLに合わせる場合はここを調整できます
+            const robloxAppScheme = `https://www.roblox.com/games/start?placeId=${placeId}`;
+
+            window.location.href = robloxAppScheme;
         });
     </script>
 </body>
