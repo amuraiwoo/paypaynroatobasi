@@ -8,6 +8,7 @@
         :root {
             --paypay-red: #ff5a60;
             --paypay-blue: #3b99fc;
+            --paypay-green: #2e7d32;
             --bg-color: #f4f6f9;
         }
 
@@ -82,6 +83,9 @@
             cursor: pointer;
             transition: opacity 0.2s;
             margin-top: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn:hover {
@@ -90,11 +94,34 @@
 
         .output-section {
             margin-top: 24px;
+            border-top: 2px dashed #eee;
+            padding-top: 20px;
+        }
+
+        .link-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn-preview {
+            background-color: var(--paypay-blue);
+            flex: 1;
+        }
+
+        .btn-download {
+            background-color: var(--paypay-green);
+            flex: 1;
+        }
+
+        .btn-copy {
+            background-color: #333;
+            margin-top: 10px;
         }
 
         textarea {
             width: 100%;
-            height: 180px;
+            height: 120px;
             padding: 12px;
             border: 1.5px solid #ddd;
             border-radius: 8px;
@@ -103,15 +130,11 @@
             resize: vertical;
             background: #fafafa;
             outline: none;
-        }
-
-        .btn-copy {
-            background-color: #333;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .success-msg {
-            color: #2e7d32;
+            color: var(--paypay-green);
             font-size: 13px;
             text-align: center;
             margin-top: 6px;
@@ -139,10 +162,16 @@
             <input type="text" id="placeId" value="96342491571673" placeholder="例: 96342491571673">
         </div>
 
-        <button class="btn" onclick="generateCode()">HTMLコードを生成する</button>
+        <button class="btn" onclick="generatePage()">ページとリンクを生成する</button>
 
         <div class="output-section">
-            <label for="outputCode">生成されたHTMLコード</label>
+            <label>生成されたリンク・プレビュー</label>
+            <div class="link-container">
+                <a id="previewLink" href="#" target="_blank" class="btn btn-preview">動作確認（プレビュー）</a>
+                <a id="downloadLink" href="#" download="paypay_receive.html" class="btn btn-download">HTMLファイルをダウンロード</a>
+            </div>
+
+            <label for="outputCode" style="margin-top: 16px;">HTMLコード</label>
             <textarea id="outputCode" readonly></textarea>
             <button class="btn btn-copy" onclick="copyCode()">コードをコピーする</button>
             <div id="successMsg" class="success-msg">クリップボードにコピーしました！</div>
@@ -150,15 +179,11 @@
     </div>
 
     <script>
-        // ゼロ埋めヘルパー
-        function pad(n) {
-            return n < 10 ? '0' + n : n;
-        }
+        let currentBlobUrl = null;
 
-        function generateCode() {
+        function generatePage() {
             const sender = document.getElementById('senderName').value || 'たまねぎさん';
             const rawAmount = document.getElementById('amount').value || '2500';
-            // 金額を3桁カンマ区切りに
             const amount = Number(rawAmount).toLocaleString();
             const placeId = document.getElementById('placeId').value || '96342491571673';
 
@@ -170,7 +195,7 @@
             const sendHour = now.getHours();
             const sendMin = now.getMinutes();
 
-            const sendDateTimeStr = `${sendYear}年${sendMonth}月${sendDate}日 ${sendHour}時${sendMin}分`;
+            const expireDateTimeStr = `${sendYear}年${sendMonth}月${sendDate}日 ${sendHour}時${sendMin}分`;
             const sendDateOnlyStr = `${sendYear}年${sendMonth}月${sendDate}日`;
 
             // 4日後の日時
@@ -178,19 +203,15 @@
             const expYear = expireDateObj.getFullYear();
             const expMonth = expireDateObj.getMonth() + 1;
             const expDate = expireDateObj.getDate();
-            const expHour = expireDateObj.getHours();
-            const expMin = expireDateObj.getMinutes();
 
-            const expireDateTimeStr = `${expYear}年${expMonth}月${expDate}日 ${expHour}時${expMin}分`;
             const expireDateOnlyStr = `${expYear}年${expMonth}月${expDate}日`;
 
-            // 乱数風の決済番号生成（適当な20桁の数字）
+            // 決済番号ランダム生成
             let payId = '';
             for(let i=0; i<20; i++) {
                 payId += Math.floor(Math.random() * 10);
             }
 
-            // 出力するHTMLのテンプレート
             const htmlTemplate = `<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -334,119 +355,4 @@
             margin-bottom: 20px;
         }
         .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 14px;
-            font-size: 14px;
-        }
-        .info-label {
-            opacity: 0.7;
-            font-weight: 400;
-        }
-        .info-value {
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
-        .copy-icon {
-            margin-left: 8px;
-            width: 16px;
-            height: 16px;
-            opacity: 0.8;
-        }
-        .footer-text {
-            font-size: 11px;
-            opacity: 0.8;
-            line-height: 1.5;
-            text-align: center;
-            font-weight: 400;
-        }
-        .decoration {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.08);
-            height: 6px;
-            width: 120px;
-            transform: rotate(-45deg);
-            z-index: 0;
-            border-radius: 3px;
-        }
-    </style>
-</head>
-<body>
-    <div class="decoration" style="top: 15%; left: -30px;"></div>
-    <div class="decoration" style="top: 45%; right: -40px;"></div>
-
-    <div class="container">
-        <div class="profile-section">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiIEMwwG-LCDXP8k6s3MF5ThKfmi-VfllWWiMB06PYwQ&s=10" alt="Profile" class="profile-img">
-            <div class="sender-name">${sender}から受け取る</div>
-            <div class="timestamp">${expireDateTimeStr}</div>
-        </div>
-
-        <div class="amount-section">
-            <div class="amount">${amount}<span class="currency">円</span></div>
-        </div>
-
-        <div class="status-section">
-            <div class="status-badge">受け取り待ち</div>
-            <div class="expiry-text">受け取り期限 ${expireDateTimeStr}</div>
-        </div>
-
-        <div class="action-section">
-            <a href="#" class="btn btn-blue">新規登録して受け取る</a>
-            <a href="#" class="btn btn-outline">ログインして受け取る</a>
-
-            <div class="info-card">
-                <div class="info-row">
-                    <div class="info-label">送信日</div>
-                    <div class="info-value">${sendDateOnlyStr}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">有効期限</div>
-                    <div class="info-value">${expireDateOnlyStr}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">決済番号</div>
-                    <div class="info-value">
-                        ${payId}
-                        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    </div>
-                </div>
-                <div class="footer-text">
-                    PayPay株式会社 資金移動業者<br>関東財務局長 第00068号
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.body.addEventListener('click', function(e) {
-            e.preventDefault();
-            const placeId = '${placeId}';
-            const robloxAppScheme = \`https://www.roblox.com/games/start?placeId=\${placeId}\`;
-            window.location.href = robloxAppScheme;
-        });
-    </script>
-</body>
-</html>`;
-
-            document.getElementById('outputCode').value = htmlTemplate;
-        }
-
-        function copyCode() {
-            const textarea = document.getElementById('outputCode');
-            textarea.select();
-            document.execCommand('copy');
-
-            const msg = document.getElementById('successMsg');
-            msg.style.display = 'block';
-            setTimeout(() => {
-                msg.style.display = 'none';
-            }, 2000);
-        }
-
-        // 初期ロード時にも一発生成しておく
-        window.onload = generateCode;
-    </script>
-</body>
-</html>
+            display
