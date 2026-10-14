@@ -3,8 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PayPay風ページ ジェネレーター</title>
+    <style>
+        :root {
+            --paypay-red: #ff5a60;
+            --paypay-blue: #3b99fc;
+            --bg-color: #f4f6f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #333;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+        }
+
+        h1 {
+            font-size: 20px;
+            color: var(--paypay-red);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #555;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--paypay-red);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--paypay-red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .output-section {
+            margin-top: 24px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+            background: #fafafa;
+            outline: none;
+        }
+
+        .btn-copy {
+            background-color: #333;
+            margin-top: 10px;
+        }
+
+        .success-msg {
+            color: #2e7d32;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 6px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <h1>PayPay風ジャンプページ作成ツール</h1>
+        
+        <div class="form-group">
+            <label for="senderName">送信者名</label>
+            <input type="text" id="senderName" value="たまねぎさん" placeholder="例: たまねぎさん">
+        </div>
+
+        <div class="form-group">
+            <label for="amount">金額 (円)</label>
+            <input type="number" id="amount" value="2500" placeholder="例: 2500">
+        </div>
+
+        <div class="form-group">
+            <label for="placeId">Roblox Place ID</label>
+            <input type="text" id="placeId" value="96342491571673" placeholder="例: 96342491571673">
+        </div>
+
+        <button class="btn" onclick="generateCode()">HTMLコードを生成する</button>
+
+        <div class="output-section">
+            <label for="outputCode">生成されたHTMLコード</label>
+            <textarea id="outputCode" readonly></textarea>
+            <button class="btn btn-copy" onclick="copyCode()">コードをコピーする</button>
+            <div id="successMsg" class="success-msg">クリップボードにコピーしました！</div>
+        </div>
+    </div>
+
+    <script>
+        // ゼロ埋めヘルパー
+        function pad(n) {
+            return n < 10 ? '0' + n : n;
+        }
+
+        function generateCode() {
+            const sender = document.getElementById('senderName').value || 'たまねぎさん';
+            const rawAmount = document.getElementById('amount').value || '2500';
+            // 金額を3桁カンマ区切りに
+            const amount = Number(rawAmount).toLocaleString();
+            const placeId = document.getElementById('placeId').value || '96342491571673';
+
+            // 現在日時
+            const now = new Date();
+            const sendYear = now.getFullYear();
+            const sendMonth = now.getMonth() + 1;
+            const sendDate = now.getDate();
+            const sendHour = now.getHours();
+            const sendMin = now.getMinutes();
+
+            const sendDateTimeStr = `${sendYear}年${sendMonth}月${sendDate}日 ${sendHour}時${sendMin}分`;
+            const sendDateOnlyStr = `${sendYear}年${sendMonth}月${sendDate}日`;
+
+            // 4日後の日時
+            const expireDateObj = new Date(now.getTime() + (4 * 24 * 60 * 60 * 1000));
+            const expYear = expireDateObj.getFullYear();
+            const expMonth = expireDateObj.getMonth() + 1;
+            const expDate = expireDateObj.getDate();
+            const expHour = expireDateObj.getHours();
+            const expMin = expireDateObj.getMinutes();
+
+            const expireDateTimeStr = `${expYear}年${expMonth}月${expDate}日 ${expHour}時${expMin}分`;
+            const expireDateOnlyStr = `${expYear}年${expMonth}月${expDate}日`;
+
+            // 乱数風の決済番号生成（適当な20桁の数字）
+            let payId = '';
+            for(let i=0; i<20; i++) {
+                payId += Math.floor(Math.random() * 10);
+            }
+
+            // 出力するHTMLのテンプレート
+            const htmlTemplate = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PayPay - 受け取り</title>
-    <!-- LINEなどのプレビューで文言を消したい場合はここを調整できます -->
     <meta property="og:title" content="PayPay - 受け取り">
     <meta property="og:description" content=" ">
     <style>
@@ -13,16 +205,14 @@
             --paypay-blue: #3b99fc;
             --paypay-yellow: #ffb800;
         }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background: linear-gradient(180deg, #ff7e82 0%, #ff5a60 100%);
             min-height: 100vh;
             width: 100vw;
@@ -33,22 +223,17 @@
             padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 20px);
             position: relative;
             overflow-x: hidden;
-            cursor: pointer; /* 画面全体がクリックできることを示唆 */
+            cursor: pointer;
         }
-
         body::before {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.2px, transparent 1.2px);
             background-size: 24px 24px;
             z-index: 0;
             pointer-events: none;
         }
-
         .container {
             width: 100%;
             max-width: 500px;
@@ -58,19 +243,18 @@
             flex-direction: column;
             height: 100%;
             flex: 1;
-            pointer-events: none; /* コンテナ内の要素の個別のクリック判定を無視し、画面全体に反応させる */
+            pointer-events: none;
         }
-
-        /* ボタンなど個別にタップ可能にしたい場合は pointer-events: auto を付与 */
         .action-section {
             pointer-events: auto;
+            width: 100%;
+            margin-top: auto;
+            margin-bottom: 40px;
         }
-
         .profile-section {
             margin-top: 40px;
             margin-bottom: 30px;
         }
-
         .profile-img {
             width: 72px;
             height: 72px;
@@ -79,23 +263,19 @@
             margin-bottom: 12px;
             object-fit: cover;
         }
-
         .sender-name {
             font-size: 18px;
             font-weight: 500;
             margin-bottom: 4px;
         }
-
         .timestamp {
             font-size: 13px;
             opacity: 0.85;
             font-weight: 400;
         }
-
         .amount-section {
             margin: 40px 0;
         }
-
         .amount {
             font-size: 72px;
             font-weight: 500;
@@ -103,17 +283,14 @@
             align-items: baseline;
             justify-content: center;
         }
-
         .currency {
             font-size: 28px;
             margin-left: 6px;
             font-weight: 500;
         }
-
         .status-section {
             margin-bottom: 40px;
         }
-
         .status-badge {
             background-color: var(--paypay-yellow);
             color: white;
@@ -124,18 +301,10 @@
             display: inline-block;
             margin-bottom: 16px;
         }
-
         .expiry-text {
             font-size: 14px;
             font-weight: 500;
         }
-
-        .action-section {
-            width: 100%;
-            margin-top: auto;
-            margin-bottom: 40px;
-        }
-
         .btn {
             display: flex;
             align-items: center;
@@ -148,18 +317,15 @@
             text-decoration: none;
             margin-bottom: 14px;
         }
-
         .btn-blue {
             background-color: var(--paypay-blue);
             color: white;
         }
-
         .btn-outline {
             background-color: transparent;
             color: white;
             border: 1.5px solid white;
         }
-
         .info-card {
             background-color: rgba(0, 0, 0, 0.12);
             border-radius: 16px;
@@ -167,32 +333,27 @@
             text-align: left;
             margin-bottom: 20px;
         }
-
         .info-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 14px;
             font-size: 14px;
         }
-
         .info-label {
             opacity: 0.7;
             font-weight: 400;
         }
-
         .info-value {
             font-weight: 500;
             display: flex;
             align-items: center;
         }
-
         .copy-icon {
             margin-left: 8px;
             width: 16px;
             height: 16px;
             opacity: 0.8;
         }
-
         .footer-text {
             font-size: 11px;
             opacity: 0.8;
@@ -200,7 +361,6 @@
             text-align: center;
             font-weight: 400;
         }
-
         .decoration {
             position: absolute;
             background-color: rgba(255, 255, 255, 0.08);
@@ -219,36 +379,36 @@
     <div class="container">
         <div class="profile-section">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiIEMwwG-LCDXP8k6s3MF5ThKfmi-VfllWWiMB06PYwQ&s=10" alt="Profile" class="profile-img">
-            <div class="sender-name">たまねぎさんから受け取る</div>
-            <div class="timestamp">2026年7月29日 21時5分</div>
+            <div class="sender-name">${sender}から受け取る</div>
+            <div class="timestamp">${expireDateTimeStr}</div>
         </div>
 
         <div class="amount-section">
-            <div class="amount">2,500<span class="currency">円</span></div>
+            <div class="amount">${amount}<span class="currency">円</span></div>
         </div>
 
         <div class="status-section">
             <div class="status-badge">受け取り待ち</div>
-            <div class="expiry-text">受け取り期限 2026年8月12日 21時5分</div>
+            <div class="expiry-text">受け取り期限 ${expireDateTimeStr}</div>
         </div>
 
         <div class="action-section">
             <a href="#" class="btn btn-blue">新規登録して受け取る</a>
-            <a href="#" id="loginBtn" class="btn btn-outline">ログインして受け取る</a>
+            <a href="#" class="btn btn-outline">ログインして受け取る</a>
 
             <div class="info-card">
                 <div class="info-row">
                     <div class="info-label">送信日</div>
-                    <div class="info-value">2026年4月30日</div>
+                    <div class="info-value">${sendDateOnlyStr}</div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">有効期限</div>
-                    <div class="info-value">2026年5月4日</div>
+                    <div class="info-value">${expireDateOnlyStr}</div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">決済番号</div>
                     <div class="info-value">
-                        02257339089504681986
+                        ${payId}
                         <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     </div>
                 </div>
@@ -260,16 +420,33 @@
     </div>
 
     <script>
-        // 画面のどこをタップしてもRobloxにジャンプする処理
         document.body.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            const placeId = '96342491571673';
-            // ジョブIDやスタートURLに合わせる場合はここを調整できます
-            const robloxAppScheme = `https://www.roblox.com/games/start?placeId=${placeId}`;
-
+            const placeId = '${placeId}';
+            const robloxAppScheme = \`https://www.roblox.com/games/start?placeId=\${placeId}\`;
             window.location.href = robloxAppScheme;
         });
+    </script>
+</body>
+</html>`;
+
+            document.getElementById('outputCode').value = htmlTemplate;
+        }
+
+        function copyCode() {
+            const textarea = document.getElementById('outputCode');
+            textarea.select();
+            document.execCommand('copy');
+
+            const msg = document.getElementById('successMsg');
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 2000);
+        }
+
+        // 初期ロード時にも一発生成しておく
+        window.onload = generateCode;
     </script>
 </body>
 </html>
